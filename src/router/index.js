@@ -11,6 +11,7 @@ import Register from '@/views/Register';
 let originPush = VueRouter.prototype.push
 let originReplace = VueRouter.prototype.replace
 
+// 重写this.$router.push和replace方法，解决了编程式导航，路由和参数都不变时跳转报错的问题
 VueRouter.prototype.push = function (location, resolve, reject) {
   if (resolve && reject) {
     originPush.call(this, location, resolve, reject)

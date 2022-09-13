@@ -8,13 +8,21 @@ function resolve(dir) {
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://gmall-h5-api.atguigu.cn'
+      }
+    },
     host: 'localhost',
     port: 8080,
-    open: true,
+    open: true,  
     hot: true
   },
   lintOnSave: false,
   chainWebpack: config => {
-    config.resolve.alias.set('@',  resolve('src')).set('@assets', resolve('src/assets'))
+    config.resolve.alias.set('@',  resolve('src')).set('@assets', resolve('src/assets'))  //设置别名
+  },
+  configureWebpack: config => {
+    config.devtool = 'cheap-module-source-map'
   }
 })
