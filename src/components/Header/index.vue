@@ -68,6 +68,11 @@ export default {
         }
       })
     }
+  },
+  mounted() {
+    this.$bus.$on('clear', () => {
+      this.keyword = ''
+    })
   }
 };
 </script>

@@ -5,8 +5,7 @@
     <Recommend/>
     <Rank/>
     <Like/>
-    <Floor/>
-    <Floor/>
+    <Floor v-for="floor of floorList" :key="floor.id" :list="floor"/>
     <Brand/>
   </div>
 </template>
@@ -31,15 +30,25 @@ export default {
     Brand
   },
   computed: {
-    ...mapState('home', ['count'])
+    ...mapState('home', ['count', 'floorList'])
   },
   methods: {
-    ...mapActions('home', ['add']),
+    ...mapActions('home', ['add', 'getFloorList']),
     add1() {
       this.add()
+    },
+    change() {
+      this.obj.c = 1
+      console.log(this.obj, 'obj');
+    }
+  },
+  watch: {
+    floorList() {
+        console.log(this.floorList);
     }
   },
   mounted() {
+    this.getFloorList()
   }
 }
 </script>

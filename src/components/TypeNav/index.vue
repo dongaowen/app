@@ -1,33 +1,65 @@
 <template>
   <div class="type-nav">
     <div class="container">
-      <div @mouseleave="leaveIndex">
+      <div @mouseleave="leaveShow" @mouseenter="goShow">
         <h2 class="all">全部商品分类</h2>
-        <div class="sort">
-        <div class="all-sort-list2">
-          <div class="item" v-for="(c1, index) in categoryList" :key="c1.categoryId" :class="{'cur': currentIndex == index}">
-            <h3 @mouseenter="changeIndex(index)" >
-              <a href="">{{c1.categoryName}}</a>
-            </h3> 
-            <div class="item-list clearfix" :style="{display: currentIndex == index ? 'block' : 'none'}">
-              <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
-                <dl class="fore">
-                  <dt>
-                    <a href="">{{c2.categoryName}}</a>
-                  </dt>
-                  <dd v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                    <em>
-                      <a href="">{{c3.categoryName}}</a>
-                    </em>
-                  </dd>
-                </dl>
+        <transition name="sort">
+          <div class="sort" v-show="isShow">
+            <div class="all-sort-list2">
+              <div
+                class="item"
+                v-for="(c1, index) in categoryList"
+                :key="c1.categoryId"
+                :class="{ cur: currentIndex == index }"
+              >
+                <h3 @mouseenter="changeIndex(index)">
+                  <a
+                    :data-categoryName="c1.categoryName"
+                    :category1id="c1.categoryId"
+                    @click.prevent="goSearch"
+                    href=""
+                    >{{ c1.categoryName }}</a
+                  >
+                </h3>
+                <div
+                  class="item-list clearfix"
+                  :style="{ display: currentIndex == index ? 'block' : 'none' }"
+                >
+                  <div
+                    class="subitem"
+                    v-for="c2 in c1.categoryChild"
+                    :key="c2.categoryId"
+                  >
+                    <dl class="fore">
+                      <dt>
+                        <a
+                          :data-categoryName="c2.categoryName"
+                          :category2id="c2.categoryId"
+                          @click.prevent="goSearch"
+                          href=""
+                          >{{ c2.categoryName }}</a
+                        >
+                      </dt>
+                      <dd v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                        <em>
+                          <a
+                            :data-categoryName="c3.categoryName"
+                            :category3id="c3.categoryId"
+                            @click.prevent="goSearch"
+                            href=""
+                            >{{ c3.categoryName }}</a
+                          >
+                        </em>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </transition>
       </div>
-      </div>
-      
+
       <nav class="nav">
         <a href="###">服装城</a>
         <a href="###">美妆馆</a>
@@ -38,38 +70,62 @@
         <a href="###">有趣</a>
         <a href="###">秒杀</a>
       </nav>
-      
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState } from "vuex";
+import throttle from "lodash/throttle";
 export default {
   name: "TypeNav",
   computed: {
-    ...mapState('home', ['categoryList'])
+    ...mapState("home", ["categoryList"]),
   },
   data() {
     return {
-      currentIndex: -1
-    }
+      currentIndex: -1,
+      isShow: true,
+    };
   },
   methods: {
-    ...mapActions('home', ['getCategoryList']),
-    changeIndex(index) {
-      this.currentIndex = index
+    ...mapActions("home", ["getCategoryList"]),
+    changeIndex: throttle(function (index) {
+      this.currentIndex = index;
+    }, 50),
+    leaveShow() {
+      this.currentIndex = -1;
+      if (this.$route.path != "/home") {
+        this.isShow = false;
+      }
     },
-    leaveIndex() {
-      this.currentIndex = -1
-    }
+    goShow() {
+      this.isShow = true;
+    },
+    goSearch(event) {
+      let element = event.target;
+      let { categoryname, category1id, category2id, category3id } = element.dataset;
+      let location = { name: "search" };
+      let query = { categoryName: categoryname };
+      if (categoryname) {
+        if (category1id) {
+          query.category1id = category1id;
+        } else if (category2id) {
+          query.category2id = category2id;
+        } else {
+          query.category3id = category3id;
+        }
+        location.query = query;
+      }
+      this.$router.push(location);
+    },
   },
   mounted() {
-    this.getCategoryList()
-    setTimeout(() => {
-      console.log(this.categoryList);
-    }, 0);
-}
+    // this.getCategoryList();
+    if (this.$route.path != "/home") {
+      this.isShow = false;
+    }
+  },
 };
 </script>
 
@@ -196,6 +252,15 @@ export default {
         //   background-color: aqua;
         // }
       }
+    }
+    .sort-enter {
+      height: 0px;
+    }
+    .sort-enter-to {
+      height: 461px;
+    }
+    .sort-enter-active {
+      transition: all .5s linear;
     }
   }
 }
